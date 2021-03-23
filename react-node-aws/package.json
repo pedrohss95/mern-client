@@ -1,0 +1,19 @@
+{
+  "name": "react-node-aws",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@zeit/next-css": "^1.0.1",
+    "bootstrap": "^5.0.0-beta2",
+    "next": "10.0.9",
+    "nprogress": "^0.2.0",
+    "react": "17.0.1",
+    "react-bootstrap": "^1.5.2",
+    "react-dom": "17.0.1"
+  }
+}
