@@ -7,8 +7,15 @@ require('dotenv').config()
 
 const app = express()
 
+//connect db
+
+mongoose.connect(process.env.DATABASE_CLOUD, {useNewUrlParser: true, useUnifiedTopology: true})
+.then(() => console.log('DB connected') )
+.catch(error => console.log(error));
+
 //import router
-const authRouter = require('./routes/auth')
+const authRouter = require('./routes/auth');
+const { options } = require('./routes/auth');
 
 //app middlewares
 app.use(morgan('dev'));
