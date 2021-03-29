@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
 //virtual fields
 
 userSchema.virtual('password')
-    set(function(password){
+    .set(function(password){
         //create temp var
         this._password = password
         //generate salt

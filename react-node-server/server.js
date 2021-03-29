@@ -9,7 +9,7 @@ const app = express()
 
 //connect db
 
-mongoose.connect(process.env.DATABASE_CLOUD, {useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect(process.env.DATABASE_CLOUD, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true})
 .then(() => console.log('DB connected') )
 .catch(error => console.log(error));
 
