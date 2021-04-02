@@ -11,8 +11,8 @@ exports.userRegisterValidator = [
         .withMessage('Must be a valid email'),
     check('password')
         .notEmpty()
-        .isLength({ min: 6})
-        .withMessage('Password with minimium of 6 characters required'),
+        .isLength({ min: 8})
+        .withMessage('Password with minimium of 8 characters required'),
               
 
 ]
