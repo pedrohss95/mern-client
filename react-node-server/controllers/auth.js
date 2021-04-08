@@ -41,14 +41,13 @@ exports.register = (req, res) => {
             .then(data => {
                 console.log("Email sent from SES", data);
                 res.json({
-                    message: `Email has been succesfully sent to ${email},
-                    Please follow the instructions to complete your registration.`
+                    message: `Email has been succesfully sent to ${email}, please follow the instructions to complete your registration.`
                 })
             })
             .catch( error => {
                 console.log("ses email failed on register",error);
                 res.status(422).json({
-                    message: `We couldn't verify your email: ${email}, please try again.`
+                    error: `We couldn't verify your email: ${email}, please try again.`
                 })
             })
     });

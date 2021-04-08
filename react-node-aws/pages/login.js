@@ -7,18 +7,39 @@ const Login = () => {
     email: '',
     password: '',
     error: '',
-    success: ''
+    success: '',
+    buttonText: 'Login'
   })
 
-  const {email, password, error, success} = state;
+  const {email, password, error, success, buttonText} = state;
 
   const handleChange = (name) => (event) => {
     setState({... state, [name]: event.target.value, error: '', success: ''})
   };
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
-    console.table({name, email, password});
+    setState({...state, buttonText: 'Logining'});
+    try {
+      const response = await axios.get(`${process.env.API}/login`, {
+        email,
+        password
+      })
+      console.log(response);
+      setState({
+        ...state,  
+        email: '',
+        password: '',
+        success: response.data.message,
+        buttonText: 'Login'
+      })
+    } catch (error) {
+      console.log(error);
+      setState({...state,
+        error: error.response.data.error,
+        buttonText: 'Please try again'
+      });
+    }
   };
 
 
@@ -40,14 +61,20 @@ const Login = () => {
         <FormControl onChange={handleChange('password')} className="mb-3" type="password" placeholder="Password" />
       </FormGroup>
       <Button variant="outline-dark" type="submit">
-        Submit
+        {buttonText}
       </Button> 
     </Form>
   );
 
   return (
       <Layout>
+        <div className="col-md-7 offset-md-1">
+        <h1>Login</h1>
+        <br />
+        {success && showSuccessMessage(success)}
+        {error && showErrorMessage(error)}
         {loginForm()}
+        </div>
       </Layout> 
     )
 }
