@@ -1,6 +1,12 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react';
+import Link from 'next/link';
+import Router from 'next/router';
 import { Form, FormText, FormGroup, FormLabel, FormControl, Button } from 'react-bootstrap';
-import Layout from '../components/Layout'
+import Layout from '../components/Layout';
+import axios from 'axios';
+import {showSuccessMessage,showErrorMessage} from '../helpers/alerts';
+import { authenticate, isAuth } from '../helpers/auth'
+
 
 const Login = () => {
   const [state, setState] = useState({
@@ -11,6 +17,10 @@ const Login = () => {
     buttonText: 'Login'
   })
 
+  useEffect(() => {
+    isAuth() && Router.push("/");
+  }, []);
+
   const {email, password, error, success, buttonText} = state;
 
   const handleChange = (name) => (event) => {
@@ -19,13 +29,17 @@ const Login = () => {
 
   const handleSubmit = async event => {
     event.preventDefault();
-    setState({...state, buttonText: 'Logining'});
+    setState({...state, buttonText: 'Logging in'});
     try {
-      const response = await axios.get(`${process.env.API}/login`, {
+      const response = await axios.post(`${process.env.API}/login`, {
         email,
         password
       })
-      console.log(response);
+      //console.log(response);
+      authenticate(response, () => 
+      isAuth() && isAuth().role === 'admin' ? Router.push('/admin') : Router.push('/user')
+      );
+
       setState({
         ...state,  
         email: '',
@@ -37,7 +51,7 @@ const Login = () => {
       console.log(error);
       setState({...state,
         error: error.response.data.error,
-        buttonText: 'Please try again'
+        buttonText: 'Login'
       });
     }
   };
@@ -68,12 +82,15 @@ const Login = () => {
 
   return (
       <Layout>
-        <div className="col-md-7 offset-md-1">
+        <div className="col-md-6 offset-md-3">
         <h1>Login</h1>
         <br />
         {success && showSuccessMessage(success)}
         {error && showErrorMessage(error)}
         {loginForm()}
+        <footer>
+          <a href=''>Forgot Password?</a>
+        </footer>
         </div>
       </Layout> 
     )

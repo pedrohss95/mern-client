@@ -1,8 +1,8 @@
 const User = require('../models/user') 
 const AWS = require('aws-sdk');
-const { body } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const { registerEmailParams } = require('../helpers/email')
+const shortId = require('shortid')
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -51,6 +51,76 @@ exports.register = (req, res) => {
                 })
             })
     });
-
     
 }
+
+exports.authenticate = (req, res) => {
+    const {token} = req.body;
+
+    // console.log(token)
+
+    jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION, function(err, decoded){
+        if (err){
+            return res.status(401).json({
+                error: "Expired link. Please do the register and try again."
+            });
+        }
+
+        const {name, password, email} =jwt.decode(token)
+        const username = shortId.generate()
+
+        User.findOne({email}).exec((err,user) => {
+            if (user){
+                return res.status(400).json({
+                    error: "Email is taken"
+                });
+            }
+            // register new user
+
+            const newUser = new User({username, name, password, email})
+            newUser.save((err, result) => {
+                //console.log("error saving in db ===>",err);
+                if (err) {
+                    return res.status(401).json({
+                        error: "An error was occurred, please try again."
+
+                    });
+                }
+                return res.json({
+                    message: "Registration completed. Thank you!\n Click here to login."
+                           
+                });
+            });  
+        });
+    });
+};
+
+exports.login = (req, res) => {
+    const {email, password} = req.body;
+    console.table({ email, password })
+
+    User.findOne({email}).exec((err,user) => {
+        if (err || !user){
+            return res.status(400).json({
+                error: "User not found. Please register first and try again."
+            });
+        }
+
+        // authenticate user
+        if (!user.authenticate(password)) {
+            return res.status(400).json({
+                error: "Password is not correct, please try again."
+
+            });
+        }
+
+        const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
+
+        const {_id, name, email, role} = user
+
+        return res.json({
+            token,
+            user: {_id, name, email, role}
+        }); 
+    });
+};

@@ -1,8 +1,11 @@
 import { Button } from 'react-bootstrap'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import Link from 'next/link';
+import Router from 'next/router';
 import Layout from '../components/Layout'
 import axios from 'axios'
 import {showSuccessMessage,showErrorMessage} from '../helpers/alerts'
+import { isAuth } from '../helpers/auth'
 
 
 const  Register = () => {
@@ -14,6 +17,10 @@ const  Register = () => {
     success: '',
     buttonText: 'Register'
   })
+
+  useEffect(() => {
+    isAuth() && Router.push("/");
+  }, []);
 
   const {name, email, password, error, success, buttonText} = state;
 

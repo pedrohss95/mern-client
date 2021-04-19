@@ -2,7 +2,7 @@
 // import Head from 'next/head'
 //import styles from '../styles/Home.module.css'
 import Layout from '../components/Layout'
-import styles from '../public/static/css/styles.module.css'
+//import styles from '../public/static/css/styles.module.css'
 
 export default function Home() {
   return (
