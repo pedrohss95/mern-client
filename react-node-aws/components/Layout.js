@@ -16,9 +16,9 @@ export default function Layout ({children}) {
        <react.Fragment>
            <Head>
                 <link rel='stylesheet' href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossOrigin="anonymous"/>
-                {/* <link rel='stylesheet' href="/static/css/styles.module.css" /> */}
+                <link rel='stylesheet' href="/static/css/styles.module.css" />
             </Head>
-            <div className="nav nav-tabs bg-dark d-flex">
+            <ul className="nav nav-tabs bg-dark d-flex">
                 <li className="nav-item">
                     <Link href="/">
                         <a className="nav-link text-light">
@@ -26,7 +26,6 @@ export default function Layout ({children}) {
                         </a>
                     </Link>
                 </li>
-                
                 {!isAuth() && (
                     <react.Fragment>
                         <li className="nav-item">
@@ -47,7 +46,7 @@ export default function Layout ({children}) {
                 )}
 
                 {isAuth() && isAuth().role === 'admin' && (
-                    <li className="nav-item ml-auto">
+                    <li className="nav-item ms-auto">
                         <Link href="/admin">
                             <a className="nav-link text-light">
                                 {isAuth().name}
@@ -57,23 +56,24 @@ export default function Layout ({children}) {
                 )}
             
                 {isAuth() && isAuth().role === 'subscriber' && (
-                    <li className="nav-item ml-auto">
+                    <li className="nav-item ms-auto">
                         <Link href="/user">
                             <a className="nav-link text-light">
-                                {isAuth().name}                            </a>
+                                {isAuth().name}                           
+                            </a>
                         </Link> 
                     </li>
                 )}
-  
+
                 {isAuth() && (
                     <li className="nav-item">   
-                        <a onClick={logout} className="nav-link text-light">
-                            Logout
-                        </a>
+                            <a onClick={logout} className="nav-link text-light">
+                                Logout
+                            </a>
                     </li>
                 )}
                 
-            </div>  
+            </ul>  
             <div className='container pt-5 pb-5'>
                 {children}
             </div>

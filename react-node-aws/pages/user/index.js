@@ -1,17 +1,22 @@
-import Layout from '../../components/Layout'
+import Layout from '../../components/Layout';
+import { withUser} from '../withUser';
 
-export default function Home() {
-  return (
-    <div id='parent'>
-      <div>
-        <title>User Page</title>
-        <link rel="icon" href="/favicon.ico" />
-      </div>  
-      <link rel='stylesheet' href="/static/css/styles.module.css" />
-      <Layout>
-        User Page
-      </Layout>    
-    </div>
-     
-  )
-}
+ const User = ({user, token}) => {
+      return (
+        <div id='parent'>
+          <div>
+            <title>User Page</title>
+            <link rel="icon" href="/favicon.ico" />
+          </div>  
+          <link rel='stylesheet' href="/static/css/styles.module.css" />
+          <Layout>
+            User Page
+            <br/>
+            {JSON.stringify(user, token)}
+          </Layout>    
+        </div>  
+      )
+  }
+
+  export default withUser(User);
+

@@ -1,6 +1,7 @@
-import Layout from '../../components/Layout'
+import Layout from '../../components/Layout';
+import {withAdmin} from '../withAdmin';
 
-export default function Home() {
+const Admin = (user) => {
   return (
     <div id='parent'>
       <div>
@@ -10,8 +11,11 @@ export default function Home() {
       <link rel='stylesheet' href="/static/css/styles.module.css" />
       <Layout>
         Admin Page
+        {JSON.stringify(user)}
       </Layout>    
     </div>
      
   )
-}
+};
+
+export default withAdmin(Admin);
