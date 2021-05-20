@@ -29,3 +29,21 @@ exports.userLoginValidator = [
               
 
 ];
+
+exports.forgotPasswordValidator = [
+    check('email')
+        .notEmpty()
+        .isEmail()
+        .withMessage('Must be a valid email')              
+
+];
+
+exports.resetPasswordValidator = [
+    check('newPassword')
+    .notEmpty()
+    .isLength({ min: 8})
+    .withMessage('Password with minimium of 8 characters required'),
+    check('resetPasswordLink')
+        .notEmpty()
+        .withMessage('Token is required')
+];

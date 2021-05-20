@@ -3,9 +3,14 @@ const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const expressJwt = require('express-jwt');
 const {
-    registerEmailParams
+    registerEmailParams,
+    forgotPasswordEmailParams
 } = require('../helpers/email');
 const shortId = require('shortid');
+const {
+    json
+} = require('body-parser');
+const _ = require('loadsh');
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -181,32 +186,133 @@ exports.requireSignin = expressJwt({
 
 exports.authMiddleware = (req, res, next) => {
     const authUserId = req.user._id
-    User.findOne({_id: authUserId }).exec((err,user)=>{
-        if (err || !user){
+    User.findOne({
+        _id: authUserId
+    }).exec((err, user) => {
+        if (err || !user) {
             res.status(400).json({
                 error: "User not found"
             })
-        } 
+        }
         req.profile = user;
         next()
     })
-}
+};
 
 exports.adminMiddleware = (req, res, next) => {
     const adminUserId = req.user._id
-    User.findOne({_id: adminUserId }).exec((err,user)=>{
-        if (err || !user){
+    User.findOne({
+        _id: adminUserId
+    }).exec((err, user) => {
+        if (err || !user) {
             res.status(400).json({
                 error: "User not found"
             })
-        } 
-        if (user.role !== 'admin'){
+        }
+        if (user.role !== 'admin') {
             res.status(400).json({
                 error: "Access denied. Page for admins only"
             })
         }
         req.profile = user;
         next()
-        
+
     })
+};
+
+exports.forgotPassword = (req, res) => {
+    const {
+        email
+    } = req.body;
+    // checks if exists user with email
+    User.findOne({
+        email
+    }).exec((err, user) => {
+        if (err || !user) {
+            res.status(400).json({
+                error: "User with this email does not exists."
+            })
+        } // generate token
+        const token = jwt.sign({
+            name: user.name
+        }, process.env.JWT_RESET_PASSWORD, {
+            expiresIn: '10m'
+        })
+        //send email
+        const params = forgotPasswordEmailParams(email, token);
+
+        //populate forgotPasswordLink field 
+
+        return user.updateOne({
+            resetPasswordLink: token
+        }, (err, success) => {
+            if (err) {
+                res.status(400).json({
+                    error: "Password reset failed. Try later"
+                })
+            }
+            const sendEmail = ses.sendEmail(params).promise()
+            sendEmail
+                .then(data => {
+                    console.log("Email reset link sent from SES", data);
+                    res.json({
+                        message: `Reset Password Email link has been succesfully sent to ${email}, please follow the instructions to reset your password.`
+                    })
+                }).catch(error => {
+                    console.log('SES email failed reseting password', error)
+                    res.status(422).json({
+                        error: "We couldn't reset your password"
+                    })
+                })
+        })
+    })
+}
+
+exports.resetPassword = (req, res) => {
+    const {
+        resetPasswordLink,
+        newPassword
+    } = req.body;
+    if (resetPasswordLink) {
+        // check for expiry
+        jwt.verify(resetPasswordLink, process.env.JWT_RESET_PASSWORD, (err, success) => {
+            if (err) {
+                res.status(400).json({
+                    error: "Reset Password Link has expired. Please try again"
+                });
+            }
+
+            User.findOne({
+                resetPasswordLink
+            }).exec((err, user) => {
+                if (err || !user) {
+                    res.status(400).json({
+                        error: "Invalid token. Please try again"
+                    });
+                }
+
+                const updateFields = {
+                    password: newPassword,
+                    resetPasswordLink: ''
+                }
+
+                user = _.extend(user, updateFields)
+
+                user.save((err, result) => {
+                    if (err) {
+                        res.status(400).json({
+                            error: "Password reset failed.Try again"
+                        });
+                    }
+                    res.json({
+                        message: "Password reset successfull. Please login"
+                    })
+                })
+
+            });
+
+        });
+
+    }
+
 }

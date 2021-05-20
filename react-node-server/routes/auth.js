@@ -5,7 +5,9 @@ const router = express.Router()
 // import validators
 const {
     userRegisterValidator,
-    userLoginValidator
+    userLoginValidator,
+    forgotPasswordValidator,
+    resetPasswordValidator
 } = require('../validators/auth');
 const {
     runValidation
@@ -15,11 +17,15 @@ const {
 const {
     register,
     authenticate,
-    login
+    login,
+    forgotPassword,
+    resetPassword
 } = require('../controllers/auth');
 
 router.post('/register', userRegisterValidator, runValidation, register);
 router.post('/activate', authenticate);
 router.post('/login', userLoginValidator, runValidation, login);
+router.put('/forgot-password', forgotPasswordValidator, runValidation, forgotPassword);
+router.put('/reset-password', resetPasswordValidator, runValidation, resetPassword);
 
 module.exports = router;
