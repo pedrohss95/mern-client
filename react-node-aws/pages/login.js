@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import Router from 'next/router';
-import { Form, FormText, FormGroup, FormLabel, FormControl, Button } from 'react-bootstrap';
+import { Form, FormText, FormGroup, FormLabel, FormControl, Button, Row } from 'react-bootstrap';
 import Layout from '../components/Layout';
 import axios from 'axios';
 import {showSuccessMessage,showErrorMessage} from '../helpers/alerts';
@@ -82,16 +82,18 @@ const Login = () => {
 
   return (
       <Layout>
-        <div className="col-md-7 offset-md-2">
-        <h1>Login</h1>
-        <br />
-        {success && showSuccessMessage(success)}
-        {error && showErrorMessage(error)}
-        {loginForm()}
-          <Link href='/auth/password/forgot'>
-             <a className="text-danger float-end">Forgot Password?</a>
-          </Link>
-        </div>
+        <Row>
+          <div className="col-me-auto offset-ms-3">
+            <h1>Login</h1>
+            <br />
+            {success && showSuccessMessage(success)}
+            {error && showErrorMessage(error)}
+            {loginForm()}
+            <Link href='/auth/password/forgot'>
+              <a className="text-danger float-end">Forgot Password?</a>
+            </Link>
+          </div>
+        </Row>
       </Layout> 
     )
 }

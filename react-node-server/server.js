@@ -16,11 +16,15 @@ mongoose.connect(process.env.DATABASE_CLOUD, {useNewUrlParser: true, useUnifiedT
 //import router
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
+const categoryRouter = require('./routes/category');
+const linkRouter = require('./routes/link');
 
 //app middlewares
-app.use(morgan('dev'));
-app.use(bodyParser.json());
+
+// app.use(bodyParser.json());
 //app.use(cors());
+app.use(morgan('dev'));
+app.use(bodyParser.json({ limit: '5mb', type: 'application/json'}));
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
 
@@ -28,6 +32,8 @@ app.use(cors({ origin: process.env.CLIENT_URL }));
 //middlewares
 app.use('/api',authRouter);
 app.use('/api',userRouter);
+app.use('/api',categoryRouter);
+app.use('/api',linkRouter);
 
 
 const port = process.env.PORT;

@@ -131,10 +131,10 @@ exports.login = (req, res) => {
         email,
         password
     } = req.body;
-    console.table({
-        email,
-        password
-    })
+    // console.table({
+    //     email,
+    //     password
+    // })
 
     User.findOne({
         email
@@ -215,9 +215,8 @@ exports.adminMiddleware = (req, res, next) => {
             })
         }
         req.profile = user;
-        next()
-
-    })
+        next();
+    });
 };
 
 exports.forgotPassword = (req, res) => {

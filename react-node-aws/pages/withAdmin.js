@@ -32,7 +32,8 @@ export function withAdmin(Page){
         } else {
             return { 
                 ...(Page.getInitialProps ? await Page.getInitialProps(context) : {}),
-                user
+                user, 
+                token
             }
         };
 

@@ -1,4 +1,4 @@
-import { Button } from 'react-bootstrap'
+import { Button, Row } from 'react-bootstrap'
 import {useEffect, useState} from 'react'
 import Link from 'next/link';
 import Router from 'next/router';
@@ -114,13 +114,15 @@ const  Register = () => {
   );
   return (
       <Layout>
-        <div className="col-md-6 offset-md-3">
-          <h1>Register</h1> 
-          <br />
-          {success && showSuccessMessage(success)}
-          {error && showErrorMessage(error)}
-          {registerForm()}
-        </div>
+        <Row className="justify-content-md-center">
+          <div className="col-md-auto offset-md-3">
+            <h1>Register</h1> 
+            <br />
+            {success && showSuccessMessage(success)}
+            {error && showErrorMessage(error)}
+            {registerForm()}
+          </div>
+        </Row>
       </Layout>
   )
 }
