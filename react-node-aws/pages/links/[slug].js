@@ -10,6 +10,10 @@ import { Form, FormText, FormGroup, FormLabel, FormControl, Button, Row } from '
 
 const Links = ({ query, category, links, totalLinks, linksLimits, linkSkip }) => {
   const [allLinks, setAllLinks] = useState(links);
+  const [limit, setLimit] = useState(linksLimits);
+  const [skip, setSkip] = useState(0);
+  const [size, setSize] = useState(totalLinks);
+
   const listOfLinks = () => (
     allLinks.map((link, index) => (
       <Row className='alert alert-primary p-2'>
@@ -37,6 +41,23 @@ const Links = ({ query, category, links, totalLinks, linksLimits, linkSkip }) =>
       </Row>
     ))
   );
+  const loadMore = async () => {
+    let toSkip = skip + limit;
+    const response = await axios.post(`${process.env.API}/category/${query.slug}`,
+     { skip: toSkip, limit 
+    });
+    setAllLinks([...allLinks, ...response.data.links]);
+    setSize(response.data.links.length);
+    setSkip(toSkip);
+  }
+
+  const loadMoreButton = () => {
+    return (
+      size > 0 && size >= limit && (
+        <Button onClick={loadMore}>Load more Links</Button>
+      )
+    )
+  };
   return (
     <Layout>
       <Row>
@@ -59,7 +80,7 @@ const Links = ({ query, category, links, totalLinks, linksLimits, linkSkip }) =>
         </div>
       </Row>
       <div className="col-md-4">
-        <Button>Load more Links</Button>
+        {loadMoreButton()}
       </div>
     </Layout>
   )
