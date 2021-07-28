@@ -18,12 +18,13 @@ const {
   authMiddleware,
   adminMiddleware
 } = require('../controllers/auth');
-const { create, list, read, update,remove } = require('../controllers/link');
+const { create, list, read, update,remove,clickCounter } = require('../controllers/link');
 
 //routes
 
 router.post('/link', linkCreatorValidator, runValidation, requireSignin, authMiddleware, create);
 router.get('/link/all', list);
+router.put('/click-counter', clickCounter);
 router.get('/link/:slug', read);
 router.put('/link/:slug', linkUpdateValidator, runValidation, requireSignin, authMiddleware, update);
 router.delete('/link/:slug', requireSignin, adminMiddleware, remove);
