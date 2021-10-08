@@ -2,29 +2,26 @@ import { Button, Row, FormLabel, InputGroup, FormCheck } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
 import Link from 'next/link';
 import Router from 'next/router';
-import Layout from '../components/Layout'
+import Layout from '../../../components/Layout';
 import axios from 'axios'
-import { showSuccessMessage, showErrorMessage } from '../helpers/alerts'
-import { isAuth } from '../helpers/auth'
+import { showSuccessMessage, showErrorMessage } from '../../../helpers/alerts'
+import { isAuth, updateUser } from '../../../helpers/auth'
+import { withUser } from '../../withUser';
 
 
-const Register = () => {
+const Profile = ({ user, token }) => {
   const [state, setState] = useState({
-    name: '',
-    email: '',
+    name: user.name,
+    email: user.email,
     password: '',
     error: '',
     success: '',
-    buttonText: 'Register',
+    buttonText: 'Update',
     allCategories: [],
-    categories: []
+    categories: user.categories
   })
 
   const { name, email, password, error, success, buttonText, allCategories, categories } = state;
-
-  useEffect(() => {
-    isAuth() && Router.push("/");
-  }, []);
 
   useEffect(() => {
     loadCategories()
@@ -36,7 +33,7 @@ const Register = () => {
   };
 
   const handleChange = (name) => (event) => {
-    setState({ ...state, [name]: event.target.value, error: '', success: '', buttonText: 'Register' })
+    setState({ ...state, [name]: event.target.value, error: '', success: '', buttonText: 'Update' })
   };
 
   const handleToggle = category => () => {
@@ -54,23 +51,25 @@ const Register = () => {
 
   const handleSubmit = async event => {
     event.preventDefault();
-    setState({ ...state, buttonText: 'Registering' });
+    setState({ ...state, buttonText: 'Updating' });
     try {
-      const response = await axios.post(`${process.env.API}/register`, {
+      const response = await axios.put(`${process.env.API}/user`, {
         name,
         password,
-        email, 
         categories
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
-      console.log(response);
-      setState({
-        ...state,
-        name: '',
-        email: '',
-        password: '',
-        success: response.data.message,
-        buttonText: 'Submitted'
-      })
+      //console.log(response);
+      updateUser(response.data, () => {
+        setState({
+          ...state,
+          success: "Profile updated",
+          buttonText: 'Updated'
+        });
+      });
     } catch (error) {
       console.log(error);
       setState({
@@ -81,44 +80,17 @@ const Register = () => {
     }
   }
 
-  // const handleSubmit = event => {
-  //   event.preventDefault();
-  //   setState({...state, buttonText: 'Registering'});
-  //   // console.table({name, email, password});
-  //   axios.post(`http://localhost:8000/api/register`, {
-  //       name,
-  //       password,
-  //       email
-  //   }).then(response => {
-  //         console.log(response);
-  //         setState({
-  //           ...state,  
-  //           name: '',
-  //           email: '',
-  //           password: '',
-  //           success: response.data.message,
-  //           buttonText: 'Submitted'
-  //         })
-  //   })
-  //   .catch(error => {
-  //       console.log(error);
-  //       setState({...state,
-  //         error: error.response.data.message,
-  //         buttonText: 'Please try again'
-  //     })
-  //   });
-  // };
-
   const showCategories = () => {
     return allCategories && allCategories.map((category, index) => (
       <InputGroup className='list-unstyled' key={category._id}>
-        <FormCheck type="checkbox" label={category.name} onChange={handleToggle(category._id)} className='ms-2' />
+        <FormCheck type="checkbox" label={category.name} onChange={handleToggle(category._id)}
+          checked={categories.includes(category._id)} className='ms-2' />
       </InputGroup>
 
     ))
   };
 
-  const registerForm = () => (
+  const updateProfileForm = () => (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
         <h3>
@@ -130,13 +102,13 @@ const Register = () => {
         <h3>
           Email
         </h3>
-        <input value={email} onChange={handleChange('email')} type="email" className="form-control" placeholder="Input your email" required />
+        <input value={email} onChange={handleChange('email')} type="email" className="form-control" placeholder="Input your email" disabled />
       </div>
       <div className="form-group">
         <h3>
           Password
         </h3>
-        <input value={password} onChange={handleChange('password')} type="password" className="form-control" placeholder="Input your password with 8 characters" required />
+        <input value={password} onChange={handleChange('password')} type="password" className="form-control" placeholder="Update your password with 8 characters" />
       </div>
       <FormLabel className="text-muted ml-4">
         Category
@@ -154,15 +126,15 @@ const Register = () => {
     <Layout>
       <Row >
         <div className="col-md-4 offset-ms-3">
-          <h1>Register</h1>
+          <h1>Update Profile</h1>
           <br />
           {success && showSuccessMessage(success)}
           {error && showErrorMessage(error)}
-          {registerForm()}
+          {updateProfileForm()}
         </div>
       </Row>
     </Layout>
   )
 }
 
-export default Register;
+export default withUser(Profile);

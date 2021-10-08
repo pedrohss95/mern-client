@@ -30,11 +30,10 @@ exports.linkUpdateValidator = [
         .withMessage('Title Required'),
     check('url')
         .notEmpty()
-        .isLength({ min: 256})
+        .isLength({ max: 256})
         .withMessage('Url is required'),
     check('slug')
-        .notEmpty()
-        .isLength({ min: 256})
+        .isLength({ max: 256})
         .withMessage('Slug is required'),
     check('categories')
         .notEmpty()

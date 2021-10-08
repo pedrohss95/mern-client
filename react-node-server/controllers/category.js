@@ -162,8 +162,9 @@ exports.list = (req, res) => {
       }
       res.json(data);
     });
-  },
-  exports.read = (req, res) => {
+}
+
+exports.read = (req, res) => {
     const {
       slug
     } = req.params;
@@ -185,7 +186,9 @@ exports.list = (req, res) => {
           })
           .populate('postedBy', "_id name username")
           .populate('categories', "name")
-          .sort({createAt: -1})
+          .sort({
+            createAt: -1
+          })
           .limit(limit)
           .skip(skip)
           .exec((err, links) => {
@@ -194,13 +197,115 @@ exports.list = (req, res) => {
                 error: 'Could not load links for this category'
               })
             }
-            res.json({category, links})
+            res.json({
+              category,
+              links
+            })
           });
       });
   },
   exports.update = (req, res) => {
+    const {
+      slug
+    } = req.params;
+    const {
+      name,
+      image,
+      content
+    } = req.body;
 
+    // image data
+    const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+    const type = image.split(';')[0].split('/')[1];
+
+    Category.findOneAndUpdate({
+      slug
+    }, {
+      name,
+      content
+    }, {
+      new: true
+    }).exec((err, updated) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'Could not find tje category to update'
+        })
+      }
+      console.log('updated category ====>', updated);
+      if (image) {
+        const deleteParams = {
+          Bucket: 'pedrohssbucket',
+          Key: `${updated.image.key}`,
+        }
+        // delete the old image to upload new one
+        s3.deleteObject(deleteParams, (err, data) => {
+          if (err) console.log('s3 delete error during update', err)
+          else console.log('s3 delete succesfully', data)
+        })
+        // upload new image to s3
+        //upload image to S3
+        const params = {
+          Bucket: 'pedrohssbucket',
+          Key: `category/${uuidv4()}.${type}`,
+          Body: base64Data,
+          ACL: 'public-read',
+          ContentEnconding: 'base64',
+          ContentType: `image/${type}`
+        }
+        s3.upload(params, (err, data) => {
+          if (err) {
+            console.log('AWS S3 upload failed', err);
+            return res.status(400).json({
+              error: "Upload to s3 failed"
+            });
+          }
+          console.log('AWS S3 UPLOADED DATA', data);
+          updated.image.url = data.Location
+          updated.image.key = data.Key
+
+          //save to db
+          updated.save((err, success) => {
+            if (err) {
+              console.log('fail to save to db', err);
+              return res.status(400).json({
+                error: "Duplicate category.Save action to db failed"
+              });
+            }
+       
+            res.json(success);
+          })
+        });
+      } else {
+        res.json(updated);
+      }
+    })
   },
   exports.remove = (req, res) => {
+    const {
+      slug
+    } = req.params;
 
+    Category.findOneAndRemove({
+      slug
+    }).exec((err, data) => {
+      if (err) {
+        console.log('could not save on db', err);
+        return res.status(400).json({
+          error: "Could not delete category"
+        });
+      }
+      // removing image from S3
+      const deleteParams = {
+        Bucket: 'pedrohssbucket',
+        Key: `${data.image.key}`,
+      }
+      // delete the old image to upload new one
+      s3.deleteObject(deleteParams, (err, data) => {
+        if (err) console.log('s3 delete error during update', err)
+        else console.log('s3 delete succesfully', data)
+      })
+      res.json({
+        message: "Category deleted successfully"
+      })
+    })
   }

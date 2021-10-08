@@ -83,7 +83,7 @@ const Login = () => {
   return (
       <Layout>
         <Row>
-          <div className="col-me-auto offset-ms-3">
+          <div className="col-md-4 offset-ms-3">
             <h1>Login</h1>
             <br />
             {success && showSuccessMessage(success)}

@@ -81,10 +81,10 @@ const Create = ({ user, token }) => {
         });
         console.log('category created',response);
         setImageUploadButtonName('Upload Image');
+        setContent('');
         setState({
           ...state,  
           name: '',
-          content: '',
           image: '',
           buttonText: 'Created',
           imageUploadButtonName,
